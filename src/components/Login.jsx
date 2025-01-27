@@ -2,9 +2,12 @@ import { Button, Form, Input } from "antd";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
+import { useDispatch } from "react-redux";
+import { setAuthUser } from "../redux/slice/authSlice";
 
 function Login() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const user = localStorage.getItem("userData");
 
   useEffect(() => {
@@ -19,9 +22,11 @@ function Login() {
   const onFinish = (values) => {
     if (values.email?.includes("admin")) {
       localStorage.setItem("userData", JSON.stringify(values));
+      dispatch(setAuthUser(values));
       navigate("/users");
     } else {
       localStorage.setItem("userData", JSON.stringify(values));
+      dispatch(setAuthUser(values));
       navigate("/");
     }
     message.success("Login successful");

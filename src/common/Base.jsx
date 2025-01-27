@@ -1,10 +1,9 @@
-import { Outlet } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
 
 function Base() {
   return (
     <>
-      <h1>Hello</h1>
-      <Outlet />
+      <Sidebar />
     </>
   );
 }
