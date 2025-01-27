@@ -5,6 +5,7 @@ import ProtectedRoute from "./utils/ProtectedRoute";
 import Home from "./components/Home";
 import Users from "./components/Users";
 import Base from "./common/Base";
+import Cart from "./components/Cart";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
       {
         path: "/users",
         element: <Users />,
+      },
+      {
+        path: "/cart",
+        element: <Cart />,
       },
     ],
   },

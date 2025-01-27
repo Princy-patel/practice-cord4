@@ -8,12 +8,13 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const { Header, Sider, Content } = Layout;
 
 const Sidebar = () => {
+  const navigate = useNavigate();
   const getUser = useSelector((state) => state.auth.user);
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -26,29 +27,37 @@ const Sidebar = () => {
           key: "1",
           label: "Users",
           icon: <UserOutlined />,
+          onClick: () => navigate("/users"),
         },
         {
           key: "2",
+          path: "/products",
           label: "Products",
           icon: <ProductOutlined />,
+          onClick: () => navigate("/products"),
         },
       ]
     : [
         {
           key: "1",
-
+          path: "/all-products",
           label: "Products",
           icon: <ProductOutlined />,
+          onClick: () => navigate("/all-products"),
         },
         {
           key: "2",
+          path: "/cart",
           label: "Cart",
           icon: <ShoppingCartOutlined />,
+          onClick: () => navigate("/cart"),
         },
         {
           key: "3",
+          path: "/setting",
           label: "Setting",
           icon: <SettingOutlined />,
+          onClick: () => navigate("/setting"),
         },
       ];
 
