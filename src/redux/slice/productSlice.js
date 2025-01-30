@@ -37,13 +37,21 @@ export const productSlice = createSlice({
               quantity: actions.payload.quantity,
             };
           }
-          return product
+          return product;
         }),
+      };
+    },
+
+    deleteProduct: (state, actions) => {
+      return {
+        product: state.product.filter(
+          (product) => product.id !== actions.payload.id
+        ),
       };
     },
   },
 });
 
-export const { addProducts, updateQuantity } = productSlice.actions;
+export const { addProducts, updateQuantity, deleteProduct } = productSlice.actions;
 
 export default productSlice.reducer;

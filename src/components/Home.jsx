@@ -1,4 +1,4 @@
-import { Button, Card } from "antd";
+import { Button, Card, message } from "antd";
 import { addProducts } from "../redux/slice/productSlice";
 import { useDispatch } from "react-redux";
 
@@ -33,6 +33,7 @@ function Home() {
 
   const addToCart = (product) => {
     dispatch(addProducts(product));
+    message.success("Product added to cart successfully");
   };
 
   return (

@@ -1,6 +1,8 @@
-import { Button, InputNumber, Space, Table } from "antd";
+import { InputNumber, Space, Table } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { updateQuantity } from "../redux/slice/productSlice";
+import { deleteProduct, updateQuantity } from "../redux/slice/productSlice";
+import { MdDeleteOutline } from "react-icons/md";
+import { CiEdit } from "react-icons/ci";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -12,6 +14,11 @@ const Cart = () => {
 
   const onChange = (value, record) => {
     dispatch(updateQuantity({ id: record.id, quantity: value }));
+  };
+
+  // delete the product from the cart
+  const onDelete = (id) => {
+    dispatch(deleteProduct({ id }));
   };
 
   const columns = [
@@ -53,19 +60,20 @@ const Cart = () => {
       title: "Total Price",
       dataIndex: "totalPrice",
       key: "totalPrice",
-      render: (price, record) => (
-        <span>{record.price * record.quantity}</span>
-      ),
+      render: (price, record) => <span>{record.price * record.quantity}</span>,
     },
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button type="primary">Edit</Button>
-          <Button type="primary" danger>
-            Delete
-          </Button>
+          <div>
+            <CiEdit size={26} color="blue" cursor={"pointer"} />
+          </div>
+
+          <div onClick={onDelete.bind(null, record.id)}>
+            <MdDeleteOutline size={26} color="red" cursor={"pointer"} />
+          </div>
         </Space>
       ),
     },
