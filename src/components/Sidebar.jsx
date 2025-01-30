@@ -40,21 +40,18 @@ const Sidebar = () => {
     : [
         {
           key: "1",
-          path: "/all-products",
           label: "Products",
           icon: <ProductOutlined />,
-          onClick: () => navigate("/all-products"),
+          onClick: () => navigate("/"),
         },
         {
           key: "2",
-          path: "/cart",
           label: "Cart",
           icon: <ShoppingCartOutlined />,
           onClick: () => navigate("/cart"),
         },
         {
           key: "3",
-          path: "/setting",
           label: "Setting",
           icon: <SettingOutlined />,
           onClick: () => navigate("/setting"),

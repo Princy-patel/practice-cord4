@@ -27,9 +27,23 @@ export const productSlice = createSlice({
         product: [...state.product, { ...actions.payload, quantity: 1 }],
       };
     },
+
+    updateQuantity: (state, actions) => {
+      return {
+        product: state.product.map((product) => {
+          if (product.id === actions.payload.id) {
+            return {
+              ...product,
+              quantity: actions.payload.quantity,
+            };
+          }
+          return product
+        }),
+      };
+    },
   },
 });
 
-export const { addProducts } = productSlice.actions;
+export const { addProducts, updateQuantity } = productSlice.actions;
 
 export default productSlice.reducer;

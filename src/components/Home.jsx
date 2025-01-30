@@ -33,12 +33,11 @@ function Home() {
 
   const addToCart = (product) => {
     dispatch(addProducts(product));
-    console.log(`Product with id ${product} added to cart`);
   };
 
   return (
     <div>
-      <h1>Home</h1>
+      <h1 className="text-2xl font-bold">Home</h1>
       <div className="flex gap-5 mt-4">
         {mockProducts.map((product) => (
           <Card
