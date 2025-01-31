@@ -2,7 +2,6 @@ import { InputNumber, Space, Table } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteProduct, updateQuantity } from "../redux/slice/productSlice";
 import { MdDeleteOutline } from "react-icons/md";
-import { CiEdit } from "react-icons/ci";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -67,10 +66,6 @@ const Cart = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <div>
-            <CiEdit size={26} color="blue" cursor={"pointer"} />
-          </div>
-
           <div onClick={onDelete.bind(null, record.id)}>
             <MdDeleteOutline size={26} color="red" cursor={"pointer"} />
           </div>
