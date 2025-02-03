@@ -10,6 +10,7 @@ import {
 import { Button, Layout, Menu, theme } from "antd";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { IoIosLogOut } from "react-icons/io";
 
 const { Header, Sider, Content } = Layout;
 
@@ -20,6 +21,12 @@ const Sidebar = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const handleLogout = function(){
+    localStorage.removeItem("userData");
+    localStorage.removeItem("useInfo");
+    navigate("/login");
+  }
 
   const menuItems = getUser?.email?.includes("admin")
     ? [
@@ -70,21 +77,43 @@ const Sidebar = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Header
+          style={{ background: colorBgContainer }}
+          className="flex justify-between items-center px-4"
+        >
+          <div className="flex items-center">
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              style={{
+                fontSize: "16px",
+                width: 64,
+                height: 64,
+              }}
+            />
+            <h1 className="text-xl font-semibold">
+              Welcome,{" "}
+              {getUser?.email?.includes("admin") ? "Admin" : getUser?.email}
+            </h1>
+          </div>
           <Button
             type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: "16px",
-              width: 64,
-              height: 64,
-            }}
-          />
-          <span className="font-bold text-lg">
-            {getUser?.email?.includes("admin") ? "Admin" : getUser?.email}
-          </span>
+            icon={<IoIosLogOut className="w-4 h-4" />}
+            onClick={handleLogout}
+          >
+            Logout
+          </Button>
         </Header>
+        {/* <Header style={{ padding: 0, background: colorBgContainer }}>
+          <div className="">
+            <span className="font-bold text-lg">
+              {getUser?.email?.includes("admin") ? "Admin" : getUser?.email}
+            </span>
+
+            <button>LogOut</button>
+          </div>
+        </Header> */}
         <Content
           style={{
             margin: "24px 16px",
