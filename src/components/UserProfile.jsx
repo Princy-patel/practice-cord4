@@ -1,4 +1,4 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
@@ -22,7 +22,7 @@ function UserProfile() {
     }
 
     if (initialData) {
-      form.setFieldsValue(initialData); 
+      form.setFieldsValue(initialData);
     }
   }, [userInfo, storedData, form]);
 
@@ -31,9 +31,11 @@ function UserProfile() {
       .validateFields()
       .then((values) => {
         localStorage.setItem("userInfo", JSON.stringify(values));
+        message.success("Changes saved successfully!");
       })
       .catch((info) => {
         console.log("Validate Failed:", info);
+        message.error("Please check your input!");
       });
   };
 
