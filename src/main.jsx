@@ -4,13 +4,28 @@ import "./index.css";
 import App from "./App.jsx";
 import { Provider } from "react-redux";
 import { persistor, store } from "./redux/store.js";
-import { PersistGate } from 'redux-persist/integration/react'
+import { PersistGate } from "redux-persist/integration/react";
+import { ConfigProvider } from "antd";
 
 createRoot(document.getElementById("root")).render(
   // <StrictMode>
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <App />
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: {
+              headerBg: "#2D336B",
+              colorTextHeading: "white",
+              colorBgContainer: "#A9B5DF",
+              // rowHoverBg: "red",
+              // headerSortHoverBg: "pink"
+            },
+          },
+        }}
+      >
+        <App />
+      </ConfigProvider>
     </PersistGate>
   </Provider>
   // </StrictMode>,
