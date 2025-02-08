@@ -4,10 +4,21 @@ import { Table } from "antd";
 
 function Users() {
   const [users, setUsers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowPerPage, setRowPerPage] = useState(10);
+
+  const indexOfLastItem = currentPage * rowPerPage;
+  const indexOfFirstItem = indexOfLastItem - rowPerPage;
+  const currentItems = users?.users?.slice(indexOfFirstItem, indexOfLastItem);
+
+  console.log("currentItems", currentItems);
+  const totalPages = Math.ceil(users?.users?.length / rowPerPage);
+
+  console.log("totalPages", totalPages);
 
   useEffect(() => {
     async function fetchData() {
-      const data = await makeApiCall("https://dummyjson.com/users");
+      const data = await makeApiCall("https://dummyjson.com/users?limit=0");
 
       console.log(data);
       setUsers(data);
