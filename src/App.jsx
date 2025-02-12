@@ -7,6 +7,7 @@ import Users from "./components/Users";
 import Base from "./common/Base";
 import Cart from "./components/Cart";
 import UserProfile from "./components/UserProfile";
+import Rulebook from "./components/add-rule";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
       {
         path: "/setting",
         element: <UserProfile />,
+      },
+      {
+        path: "/add-rule",
+        element: <Rulebook />,
       },
     ],
   },

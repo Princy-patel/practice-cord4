@@ -22,11 +22,11 @@ const Sidebar = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const handleLogout = function(){
+  const handleLogout = function () {
     localStorage.removeItem("userData");
     localStorage.removeItem("useInfo");
     navigate("/login");
-  }
+  };
 
   const menuItems = getUser?.email?.includes("admin")
     ? [
@@ -62,6 +62,13 @@ const Sidebar = () => {
           label: "Setting",
           icon: <SettingOutlined />,
           onClick: () => navigate("/setting"),
+        },
+        {
+          key: "4",
+          path: "/add-rule",
+          label: "Rulebook",
+          icon: <ProductOutlined />,
+          onClick: () => navigate("/add-rule"),
         },
       ];
 
