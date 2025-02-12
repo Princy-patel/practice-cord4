@@ -1,45 +1,68 @@
-import { Tabs } from "antd";
+import { message, Tabs, Form } from "antd";
 import Mentions from "./lib/Mentions";
 import Groups from "./lib/Groups";
 import Message from "./lib/Message";
 import Notification from "./lib/Notification";
-
-const TableItems = [
-  {
-    label: "Mentions",
-    key: "mentions",
-    children: <Mentions />,
-  },
-  {
-    label: "Groups",
-    key: "groups",
-    children: <Groups />,
-  },
-  {
-    label: "Message",
-    key: "message",
-    children: <Message />,
-  },
-  {
-    label: "Notification",
-    key: "notification",
-    children: <Notification />,
-  },
-];
+import { useEffect, useState } from "react";
 
 function Rulebook() {
+  const [activePanel, setActivePanel] = useState(null);
+  const [form] = Form.useForm();
+
+
+  useEffect(() => {
+    console.log("activePanel", activePanel);
+  },[activePanel])
+  const handlePanelChange = (key) => {
+    form
+      .validateFields()
+      .then(() => {
+        setActivePanel(key);
+      })
+      .catch((errorInfo) => {
+        console.log("Validation failed:", errorInfo);
+        message.error("Please fill out all required fields before proceeding.");
+      });
+  };
+
+  const TableItems = [
+    {
+      label: "Mentions",
+      key: "mentions",
+      children: (
+        <Mentions
+          handlePanelChange={handlePanelChange}
+          activePanel={activePanel}
+          form={form}
+        />
+      ),
+    },
+    {
+      label: "Groups",
+      key: "groups",
+      children: <Groups />,
+    },
+    {
+      label: "Message",
+      key: "message",
+      children: <Message />,
+    },
+    {
+      label: "Notification",
+      key: "notification",
+      children: <Notification />,
+    },
+  ];
+
   return (
-    <Tabs defaultActiveKey="mentions" type="card" style={{ width: "100%" }}>
-      {TableItems.map((item) => (
-        <Tabs.TabPane
-          key={item.key}
-          tab={item.label}
-          style={{ minWidth: "700px" }}
-        >
-          {item.children}
-        </Tabs.TabPane>
-      ))}
-    </Tabs>
+    <Tabs
+      defaultActiveKey="mentions"
+      type="card"
+      style={{ width: "100%" }}
+      items={TableItems}
+      activeKey={activePanel}
+      onChange={handlePanelChange}
+    />
   );
 }
 
