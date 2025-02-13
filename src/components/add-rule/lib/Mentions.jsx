@@ -13,7 +13,7 @@ import { useState } from "react";
 const { RangePicker } = DatePicker;
 const { Item } = Form;
 
-function Mentions({ form, activePanel }) {
+function Mentions({ form }) {
   const [show, setShow] = useState(false);
 
   const items = [

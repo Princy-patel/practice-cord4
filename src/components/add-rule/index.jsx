@@ -6,13 +6,9 @@ import Notification from "./lib/Notification";
 import { useEffect, useState } from "react";
 
 function Rulebook() {
-  const [activePanel, setActivePanel] = useState(null);
+  const [activePanel, setActivePanel] = useState("mentions");
   const [form] = Form.useForm();
 
-
-  useEffect(() => {
-    console.log("activePanel", activePanel);
-  },[activePanel])
   const handlePanelChange = (key) => {
     form
       .validateFields()
@@ -29,13 +25,7 @@ function Rulebook() {
     {
       label: "Mentions",
       key: "mentions",
-      children: (
-        <Mentions
-          handlePanelChange={handlePanelChange}
-          activePanel={activePanel}
-          form={form}
-        />
-      ),
+      children: <Mentions form={form} />,
     },
     {
       label: "Groups",

@@ -1,11 +1,16 @@
-import { InputNumber, Space, Table } from "antd";
+import { InputNumber, Select, Space, Table } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteProduct, updateQuantity } from "../redux/slice/productSlice";
 import { MdDeleteOutline } from "react-icons/md";
+import { useState } from "react";
 
 const Cart = () => {
   const dispatch = useDispatch();
   const cartProducts = useSelector((state) => state.product.product);
+
+  const options = ["id", "name", "price", "description", "quantity"];
+
+  const [selectedData, setSelectedData] = useState(options.slice(0, 4));
 
   const totalPrice = cartProducts.reduce((acc, product) => {
     return acc + product.price * product.quantity;
@@ -15,7 +20,7 @@ const Cart = () => {
     dispatch(updateQuantity({ id: record.id, quantity: value }));
   };
 
-  // delete the product from the cart
+  // Delete the product from the cart
   const onDelete = (id) => {
     dispatch(deleteProduct({ id }));
   };
@@ -74,9 +79,23 @@ const Cart = () => {
     },
   ];
 
+  // Filter columns based on selectedData
+  const filteredColumns = columns.filter((col) =>
+    selectedData.includes(col.key)
+  );
+
   return (
     <>
-      <Table columns={columns} dataSource={cartProducts} />
+      <Select
+        mode="multiple"
+        style={{ width: "100%" }}
+        options={options.map((item) => ({ label: item, value: item }))}
+        placeholder="Select Columns..."
+        maxTagCount="responsive"
+        value={selectedData}
+        onChange={(e) => setSelectedData(e)} // Update selected columns
+      />
+      <Table columns={filteredColumns} dataSource={cartProducts} />
       <p className="text-right text-2xl font-bold">
         Total: ₹ {totalPrice?.toFixed(2)}
       </p>
