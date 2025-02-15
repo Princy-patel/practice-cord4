@@ -50,8 +50,8 @@ function Rulebook() {
       type="card"
       style={{ width: "100%" }}
       items={TableItems}
-      activeKey={activePanel}
-      onChange={handlePanelChange}
+      // activeKey={activePanel}
+      // onChange={handlePanelChange}
     />
   );
 }
