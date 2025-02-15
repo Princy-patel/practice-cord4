@@ -3,12 +3,24 @@ import { Card, Col, DatePicker, Popover, Row } from "antd";
 import dayjs from "dayjs";
 import { useState } from "react";
 
+const fetchDataFromAPI = async (cardKey, selectedDate) => {
+  console.log(`API called for ${cardKey} with date range:`, selectedDate);
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(selectedDate);
+    }, 1000);
+  });
+};
+
 function Message() {
   const [selectedDates, setSelectedDates] = useState({
-    card1: null,
-    card2: null,
-    card3: null,
-    card4: null,
+    card1: [dayjs().startOf("day"), dayjs().endOf("day")],
+    card2: [
+      dayjs().add(-1, "d").startOf("day"),
+      dayjs().add(-1, "d").endOf("day"),
+    ],
+    card3: [dayjs().add(-7, "d"), dayjs()],
+    card4: [dayjs().add(-30, "d"), dayjs()],
   });
 
   const rangePresets = [
@@ -24,11 +36,17 @@ function Message() {
     { label: "Last 30 Days", value: [dayjs().add(-30, "d"), dayjs()] },
   ];
 
-  const onRangeChange = (dates, dateStrings, cardKey) => {
+  const onRangeChange = async (dates, dateStrings, cardKey) => {
     if (dates) {
       setSelectedDates((prevState) => ({
         ...prevState,
         [cardKey]: dates,
+      }));
+
+      const updatedData = await fetchDataFromAPI(cardKey, dates);
+      setSelectedDates((prevState) => ({
+        ...prevState,
+        [cardKey]: updatedData,
       }));
     } else {
       setSelectedDates((prevState) => ({
@@ -38,17 +56,17 @@ function Message() {
     }
   };
 
-  const renderCard = (cardKey) => {
+  const renderCard = (day, cardKey) => {
     return (
       <Col span={6}>
         <Card
-          title="Card title"
+          title={day}
           extra={
             <Popover
               content={
                 <DatePicker.RangePicker
                   presets={rangePresets}
-                  value={selectedDates[cardKey]} // Display the selected date range for this card
+                  value={selectedDates[cardKey]}
                   onChange={(dates, dateStrings) =>
                     onRangeChange(dates, dateStrings, cardKey)
                   }
@@ -79,10 +97,10 @@ function Message() {
 
   return (
     <Row gutter={16}>
-      {renderCard("card1")}
-      {renderCard("card2")}
-      {renderCard("card3")}
-      {renderCard("card4")}
+      {renderCard("Today", "card1")}
+      {renderCard("Yesterday", "card2")}
+      {renderCard("Last 7 Days", "card3")}
+      {renderCard("Last 30 Days", "card4")}
     </Row>
   );
 }
