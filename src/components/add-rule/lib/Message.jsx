@@ -1,13 +1,13 @@
 import { CalendarOutlined } from "@ant-design/icons";
 import { Card, Col, DatePicker, Popover, Row } from "antd";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const fetchDataFromAPI = async (cardKey, selectedDate) => {
-  console.log(`API called for ${cardKey} with date range:`, selectedDate);
+const fetchDataFromAPI = async (type, selectedDate) => {
+  console.log(`API called for ${type} with date range:`, selectedDate);
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(selectedDate);
+      resolve({ type, data: `Fetched data for ${type}` });
     }, 1000);
   });
 };
@@ -23,49 +23,139 @@ function Message() {
     card4: [dayjs().add(-30, "d"), dayjs()],
   });
 
-  const rangePresets = [
-    { label: "Today", value: [dayjs().startOf("day"), dayjs().endOf("day")] },
+  const [cardData, setCardData] = useState({
+    card1: null,
+    card2: null,
+    card3: null,
+    card4: null,
+  });
+
+  const [cardTitle, setCardTitle] = useState({
+    card1: "Today",
+    card2: "Yesterday",
+    card3: "Last 7 Days",
+    card4: "Last 30 Days",
+  });
+
+  const presetDefinitions = [
     {
+      key: "today",
+      label: "Today",
+      value: [dayjs().startOf("day"), dayjs().endOf("day")],
+    },
+    {
+      key: "yesterday",
       label: "Yesterday",
       value: [
         dayjs().add(-1, "d").startOf("day"),
         dayjs().add(-1, "d").endOf("day"),
       ],
     },
-    { label: "Last 7 Days", value: [dayjs().add(-7, "d"), dayjs()] },
-    { label: "Last 30 Days", value: [dayjs().add(-30, "d"), dayjs()] },
+    {
+      key: "last_7_days",
+      label: "Last 7 Days",
+      value: [dayjs().add(-7, "d"), dayjs()],
+    },
+    {
+      key: "last_30_days",
+      label: "Last 30 Days",
+      value: [dayjs().add(-30, "d"), dayjs()],
+    },
   ];
+
+  const getPresets = (cardKey) => {
+    const currentRange = selectedDates[cardKey];
+
+    return presetDefinitions.map((preset) => {
+      const isSelected =
+        currentRange &&
+        preset.value[0].isSame(currentRange[0], "day") &&
+        preset.value[1].isSame(currentRange[1], "day");
+
+      return {
+        label: (
+          <div
+            style={{
+              padding: "2px 6px",
+              borderRadius: 4,
+              backgroundColor: isSelected ? "orange" : "transparent",
+              color: isSelected ? "#fff" : "inherit",
+            }}
+          >
+            {preset.label}
+          </div>
+        ),
+        value: preset.value,
+      };
+    });
+  };
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      const initialData = {};
+      for (const def of presetDefinitions) {
+        const cardKey = getCardKeyFromType(def.key);
+        if (cardKey) {
+          initialData[cardKey] = await fetchDataFromAPI(def.key, def.value);
+        }
+      }
+      setCardData(initialData);
+    };
+    fetchInitialData();
+  }, []);
+
+  const getCardKeyFromType = (type) => {
+    switch (type) {
+      case "today":
+        return "card1";
+      case "yesterday":
+        return "card2";
+      case "last_7_days":
+        return "card3";
+      case "last_30_days":
+        return "card4";
+      default:
+        return null;
+    }
+  };
 
   const onRangeChange = async (dates, dateStrings, cardKey) => {
     if (dates) {
-      setSelectedDates((prevState) => ({
+      setSelectedDates((prevState) => ({ ...prevState, [cardKey]: dates }));
+
+      const matchingPreset = presetDefinitions.find(
+        (preset) =>
+          dates[0].isSame(preset.value[0], "day") &&
+          dates[1].isSame(preset.value[1], "day")
+      );
+      const type = matchingPreset ? matchingPreset.key : "custom";
+
+      setCardTitle((prevState) => ({
         ...prevState,
-        [cardKey]: dates,
+        [cardKey]: matchingPreset ? matchingPreset.label : "Custom Date",
       }));
 
-      const updatedData = await fetchDataFromAPI(cardKey, dates);
-      setSelectedDates((prevState) => ({
-        ...prevState,
-        [cardKey]: updatedData,
-      }));
+      const updatedData = await fetchDataFromAPI(type, dates);
+      setCardData((prevState) => ({ ...prevState, [cardKey]: updatedData }));
     } else {
-      setSelectedDates((prevState) => ({
+      setSelectedDates((prevState) => ({ ...prevState, [cardKey]: null }));
+      setCardTitle((prevState) => ({
         ...prevState,
-        [cardKey]: null,
+        [cardKey]: "Custom Date",
       }));
     }
   };
 
-  const renderCard = (day, cardKey) => {
+  const renderCard = (cardKey) => {
     return (
-      <Col span={6}>
+      <Col span={6} key={cardKey}>
         <Card
-          title={day}
+          title={cardTitle[cardKey]}
           extra={
             <Popover
               content={
                 <DatePicker.RangePicker
-                  presets={rangePresets}
+                  presets={getPresets(cardKey)}
                   value={selectedDates[cardKey]}
                   onChange={(dates, dateStrings) =>
                     onRangeChange(dates, dateStrings, cardKey)
@@ -89,6 +179,9 @@ function Message() {
                   )} To: ${selectedDates[cardKey][1].format("YYYY-MM-DD")}`
                 : "No date selected"}
             </p>
+            <p>
+              {cardData[cardKey] ? cardData[cardKey].data : "Loading data..."}
+            </p>
           </div>
         </Card>
       </Col>
@@ -97,10 +190,10 @@ function Message() {
 
   return (
     <Row gutter={16}>
-      {renderCard("Today", "card1")}
-      {renderCard("Yesterday", "card2")}
-      {renderCard("Last 7 Days", "card3")}
-      {renderCard("Last 30 Days", "card4")}
+      {renderCard("card1")}
+      {renderCard("card2")}
+      {renderCard("card3")}
+      {renderCard("card4")}
     </Row>
   );
 }
