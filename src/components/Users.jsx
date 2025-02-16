@@ -1,80 +1,89 @@
 import { useEffect, useState } from "react";
 import { makeApiCall } from "../api";
-import { Table } from "antd";
+import { Select, Table } from "antd";
 
 function Users() {
   const [users, setUsers] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowPerPage, setRowPerPage] = useState(10);
+  const [selectedData, setSelectedData] = useState([
+    "firstName",
+    "lastName",
+    "email",
+  ]);
 
-  const indexOfLastItem = currentPage * rowPerPage;
-  const indexOfFirstItem = indexOfLastItem - rowPerPage;
-  const currentItems = users?.users?.slice(indexOfFirstItem, indexOfLastItem);
-
-  console.log("currentItems", currentItems);
-  const totalPages = Math.ceil(users?.users?.length / rowPerPage);
-
-  console.log("totalPages", totalPages);
+  const options = ["firstName", "lastName", "email", "age"];
 
   useEffect(() => {
     async function fetchData() {
       const data = await makeApiCall("https://dummyjson.com/users?limit=0");
-
-      console.log(data);
-      setUsers(data);
-
-      console.log(data);
+      setUsers(data?.users || []);
     }
     fetchData();
   }, []);
 
-  // const deleteProduct = async function (id) {
-  //   await makeApiCall(`https://fakestoreapi.com/products/${id}`, "delete");
-  //   const data = await makeApiCall("https://fakestoreapi.com/products");
-  //   setUsers(data);
-  // };
+  const currentDate = new Date().toLocaleDateString();
 
   const columns = [
     {
       title: "First Name",
       dataIndex: "firstName",
-      key: "id",
+      key: "firstName",
       sorter: (a, b) => a.firstName.localeCompare(b.firstName),
-      // render: (text, record) => (
-      //   <span onClick={deleteProduct.bind(null, record.id)}>{text}</span>
-      // ),
     },
     {
       title: "Last Name",
       dataIndex: "lastName",
-      key: "id",
+      key: "lastName",
       sorter: (a, b) => a.lastName.localeCompare(b.lastName),
     },
     {
       title: "Email",
       dataIndex: "email",
-      key: "id",
+      key: "email",
       sorter: (a, b) => a.email.localeCompare(b.email),
     },
     {
       title: "Age",
       dataIndex: "age",
-      key: "id",
+      key: "age",
       sorter: (a, b) => a.age - b.age,
     },
   ];
 
+  const filteredColumns = columns.filter((col) =>
+    selectedData.includes(col.dataIndex)
+  );
+
   return (
     <div>
+      <Select
+        mode="multiple"
+        style={{ width: "100%", marginBottom: "16px" }}
+        options={options.map((item) => ({ label: item, value: item }))}
+        placeholder="Select Columns..."
+        maxTagCount="responsive"
+        value={selectedData}
+        onChange={(selectedValues) => setSelectedData(selectedValues)}
+      />
       <Table
-        columns={columns?.map((column) => ({ ...column }))}
-        dataSource={users.users}
+        columns={filteredColumns}
+        dataSource={users.map((user) => ({ ...user, key: user.id }))}
         bordered
-        title={() => "Header"}
-        footer={() => "Footer"}
-        // pagination={true}
+        title={() => "User List"}
         showHeader={true}
         tableLayout="fixed"
+        scroll={{ y: 400 }}
+        sticky
+        summary={() => (
+          <Table.Summary fixed>
+            <Table.Summary.Row>
+              {filteredColumns.map((col, idx) => (
+                <Table.Summary.Cell key={col.dataIndex} index={idx}>
+                  {currentDate}
+                </Table.Summary.Cell>
+              ))}
+            </Table.Summary.Row>
+          </Table.Summary>
+        )}
       />
     </div>
   );
