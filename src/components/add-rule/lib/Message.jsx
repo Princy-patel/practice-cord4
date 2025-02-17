@@ -3,15 +3,6 @@ import { Card, Col, DatePicker, Popover, Row } from "antd";
 import dayjs from "dayjs";
 import { useState, useEffect } from "react";
 
-const fetchDataFromAPI = async (type, selectedDate) => {
-  console.log(`API called for ${type} with date range:`, selectedDate);
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ type, data: `Fetched data for ${type}` });
-    }, 1000);
-  });
-};
-
 function Message() {
   const [selectedDates, setSelectedDates] = useState({
     card1: [dayjs().startOf("day"), dayjs().endOf("day")],
@@ -23,19 +14,62 @@ function Message() {
     card4: [dayjs().add(-30, "d"), dayjs()],
   });
 
-  const [cardData, setCardData] = useState({
-    card1: null,
-    card2: null,
-    card3: null,
-    card4: null,
+  const [store_card_id, set_store_card_id] = useState(false);
+
+  const [card_data, set_card_data] = useState({
+    today: "",
+    yesterday: "",
+    last_7_days: "",
+    last_30_days: "",
   });
 
-  const [cardTitle, setCardTitle] = useState({
-    card1: "Today",
-    card2: "Yesterday",
-    card3: "Last 7 Days",
-    card4: "Last 30 Days",
-  });
+  const [second_card, set_second_card] = useState({});
+
+  const data = {
+    today: {
+      sales: "",
+      leads: "",
+      visitors: "",
+      users: "",
+      value: "today",
+    },
+    yesterday: {
+      sales: "",
+      leads: "",
+      visitors: "",
+      users: "",
+      value: "yesterday",
+    },
+    last_7_days: {
+      sales: "",
+      leads: "",
+      visitors: "",
+      users: "",
+      value: "last_7_days",
+    },
+    last_30_days: {
+      sales: "",
+      leads: "",
+      visitors: "",
+      users: "",
+      value: "last_30_days",
+    },
+  };
+
+  const callApi = (cardKey) => {
+    set_card_data({ ...data });
+    if(store_card_id){
+      set_card_data((prev) => ({
+        ...prev,
+        [cardKey]: ...apiFilled.response,
+      }));
+    }
+    set_store_card_id(false);
+  };
+
+  useEffect(() => {
+    callApi();
+  }, []);
 
   const presetDefinitions = [
     {
@@ -90,67 +124,23 @@ function Message() {
     });
   };
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      const initialData = {};
-      for (const def of presetDefinitions) {
-        const cardKey = getCardKeyFromType(def.key);
-        if (cardKey) {
-          initialData[cardKey] = await fetchDataFromAPI(def.key, def.value);
-        }
-      }
-      setCardData(initialData);
-    };
-    fetchInitialData();
-  }, []);
+  const onDateChange = async (dates, dateStrings, cardKey) => {
+    if (!dates) return;
 
-  const getCardKeyFromType = (type) => {
-    switch (type) {
-      case "today":
-        return "card1";
-      case "yesterday":
-        return "card2";
-      case "last_7_days":
-        return "card3";
-      case "last_30_days":
-        return "card4";
-      default:
-        return null;
-    }
-  };
+    set_store_card_id(true);
+    setSelectedDates((prev) => ({
+      ...prev,
+      [cardKey]: dates,
+    }));
 
-  const onRangeChange = async (dates, dateStrings, cardKey) => {
-    if (dates) {
-      setSelectedDates((prevState) => ({ ...prevState, [cardKey]: dates }));
-
-      const matchingPreset = presetDefinitions.find(
-        (preset) =>
-          dates[0].isSame(preset.value[0], "day") &&
-          dates[1].isSame(preset.value[1], "day")
-      );
-      const type = matchingPreset ? matchingPreset.key : "custom";
-
-      setCardTitle((prevState) => ({
-        ...prevState,
-        [cardKey]: matchingPreset ? matchingPreset.label : "Custom Date",
-      }));
-
-      const updatedData = await fetchDataFromAPI(type, dates);
-      setCardData((prevState) => ({ ...prevState, [cardKey]: updatedData }));
-    } else {
-      setSelectedDates((prevState) => ({ ...prevState, [cardKey]: null }));
-      setCardTitle((prevState) => ({
-        ...prevState,
-        [cardKey]: "Custom Date",
-      }));
-    }
+    callApi(cardKey);
   };
 
   const renderCard = (cardKey) => {
     return (
       <Col span={6} key={cardKey}>
         <Card
-          title={cardTitle[cardKey]}
+          title={cardKey}
           extra={
             <Popover
               content={
@@ -158,7 +148,7 @@ function Message() {
                   presets={getPresets(cardKey)}
                   value={selectedDates[cardKey]}
                   onChange={(dates, dateStrings) =>
-                    onRangeChange(dates, dateStrings, cardKey)
+                    onDateChange(dates, dateStrings, cardKey)
                   }
                   style={{ width: 250 }}
                 />
@@ -172,16 +162,7 @@ function Message() {
           style={{ width: 300, border: "none" }}
         >
           <div>
-            <p>
-              {selectedDates[cardKey]
-                ? `From: ${selectedDates[cardKey][0].format(
-                    "YYYY-MM-DD"
-                  )} To: ${selectedDates[cardKey][1].format("YYYY-MM-DD")}`
-                : "No date selected"}
-            </p>
-            <p>
-              {cardData[cardKey] ? cardData[cardKey].data : "Loading data..."}
-            </p>
+            <p>{card_data[cardKey]?.value}</p>
           </div>
         </Card>
       </Col>
@@ -190,10 +171,9 @@ function Message() {
 
   return (
     <Row gutter={16}>
-      {renderCard("card1")}
-      {renderCard("card2")}
-      {renderCard("card3")}
-      {renderCard("card4")}
+      {["today", "yesterday", "last_7_days", "last_30_days"].map((cardKey) => {
+        return renderCard(cardKey);
+      })}
     </Row>
   );
 }
