@@ -1,74 +1,96 @@
 import { CalendarOutlined } from "@ant-design/icons";
-import { Card, Col, DatePicker, Popover, Row } from "antd";
+import { Card, Col, DatePicker, Popover, Row, Skeleton } from "antd";
 import dayjs from "dayjs";
 import { useState, useEffect } from "react";
 
 function Message() {
   const [selectedDates, setSelectedDates] = useState({
-    card1: [dayjs().startOf("day"), dayjs().endOf("day")],
-    card2: [
+    today: [dayjs().startOf("day"), dayjs().endOf("day")],
+    yesterday: [
       dayjs().add(-1, "d").startOf("day"),
       dayjs().add(-1, "d").endOf("day"),
     ],
-    card3: [dayjs().add(-7, "d"), dayjs()],
-    card4: [dayjs().add(-30, "d"), dayjs()],
+    last_7_days: [dayjs().add(-7, "d"), dayjs()],
+    last_30_days: [dayjs().add(-30, "d"), dayjs()],
   });
 
-  const [store_card_id, set_store_card_id] = useState(false);
+  const [loading, setLoading] = useState({
+    today: false,
+    yesterday: false,
+    last_7_days: false,
+    last_30_days: false,
+  });
 
-  const [card_data, set_card_data] = useState({
+  const [cardData, setCardData] = useState({
     today: "",
     yesterday: "",
     last_7_days: "",
     last_30_days: "",
   });
 
-  const [second_card, set_second_card] = useState({});
-
   const data = {
-    today: {
-      sales: "",
-      leads: "",
-      visitors: "",
-      users: "",
-      value: "today",
-    },
+    today: { sales: "", leads: "", visitors: "", users: "", value: "Today" },
     yesterday: {
       sales: "",
       leads: "",
       visitors: "",
       users: "",
-      value: "yesterday",
+      value: "Yesterday",
     },
     last_7_days: {
       sales: "",
       leads: "",
       visitors: "",
       users: "",
-      value: "last_7_days",
+      value: "Last 7 Days",
     },
     last_30_days: {
       sales: "",
       leads: "",
       visitors: "",
       users: "",
-      value: "last_30_days",
+      value: "Last 30 Days",
     },
   };
 
-  const callApi = (cardKey) => {
-    set_card_data({ ...data });
-    if(store_card_id){
-      set_card_data((prev) => ({
-        ...prev,
-        [cardKey]: ...apiFilled.response,
-      }));
+  /**
+   * callApi:
+   * @param {string} cardKey - key for the card. If omitted, then do an initial load.
+   * @param {boolean} isInitial - optional flag. If true, load entire data state.
+   */
+  const callApi = (cardKey, isInitial = false) => {
+    if (isInitial) {
+      // Set a global loading state if you wish (or set loading for each card)
+      setLoading({
+        today: true,
+        yesterday: true,
+        last_7_days: true,
+        last_30_days: true,
+      });
+
+      setTimeout(() => {
+        setCardData({ ...data });
+        setLoading({
+          today: false,
+          yesterday: false,
+          last_7_days: false,
+          last_30_days: false,
+        });
+      }, 1500);
+    } else if (cardKey) {
+      setLoading((prev) => ({ ...prev, [cardKey]: true }));
+      setTimeout(() => {
+        setCardData((prev) => ({
+          ...prev,
+          [cardKey]: data[cardKey],
+        }));
+        setLoading((prev) => ({ ...prev, [cardKey]: false }));
+      }, 1500);
     }
-    set_store_card_id(false);
   };
 
   useEffect(() => {
-    callApi();
+    callApi(null, true);
   }, []);
 
   const presetDefinitions = [
@@ -99,7 +121,6 @@ function Message() {
 
   const getPresets = (cardKey) => {
     const currentRange = selectedDates[cardKey];
-
     return presetDefinitions.map((preset) => {
       const isSelected =
         currentRange &&
@@ -124,10 +145,9 @@ function Message() {
     });
   };
 
-  const onDateChange = async (dates, dateStrings, cardKey) => {
+  const onDateChange = (dates, dateStrings, cardKey) => {
     if (!dates) return;
 
-    set_store_card_id(true);
     setSelectedDates((prev) => ({
       ...prev,
       [cardKey]: dates,
@@ -140,7 +160,7 @@ function Message() {
     return (
       <Col span={6} key={cardKey}>
         <Card
-          title={cardKey}
+          title={cardKey.replace(/_/g, " ")}
           extra={
             <Popover
               content={
@@ -161,9 +181,11 @@ function Message() {
           }
           style={{ width: 300, border: "none" }}
         >
-          <div>
-            <p>{card_data[cardKey]?.value}</p>
-          </div>
+          {loading[cardKey] ? (
+            <Skeleton active />
+          ) : (
+            <p>{cardData[cardKey]?.value}</p>
+          )}
         </Card>
       </Col>
     );
@@ -171,9 +193,9 @@ function Message() {
 
   return (
     <Row gutter={16}>
-      {["today", "yesterday", "last_7_days", "last_30_days"].map((cardKey) => {
-        return renderCard(cardKey);
-      })}
+      {["today", "yesterday", "last_7_days", "last_30_days"].map((cardKey) =>
+        renderCard(cardKey)
+      )}
     </Row>
   );
 }
